@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rechnung № {{ order.id }}</title>
+    <style type="text/css">
+    @page {
+    size: a4 portrait;
+    margin: 1cm;
+    }
+      * {
+        padding: 0px;
+        margin: 0px;
+        border: 0px;
+      }
+      html,
+      body {
+
+        width: 100%;
+        font-size: 100%;
+        line-height: 1;
+        font-size: 14px;
+        -ms-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+        font-family: "Arial";
+      }
+      img {
+        vertical-align: top;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-size: inherit;
+        font-weight: inherit;
+      }
+      .head {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      .content {
+        margin-bottom: 5px;
+      }
+      .invoice {
+        margin-top: 90px;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 24px;
+      }
+      .title_colum {
+        background-color: black;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .artical_weight {
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+      span {
+        font-size: 12px;
+      }
+
+
+
+
+    </style>
+</head>
+<body>
+<table width="800px">
+    <tr style="vertical-align: top" width="800px">
+        <td width="60%">
+            <img src="data:;base64,{{ img }}" width="150px"/>
+        </td>
+        <td>
+            <h3 class="head">Pelmeni Hamburg</h3>
+            <p class="content">Pfunt Inh. Anton Kilin</p>
+            <p class="content">Russisches Catering</p>
+            <p class="content">Seppenser Mühlenweg 19</p>
+            <p class="content">21244 Buchholz i.d.N.</p>
+            <p class="content">Tel.: +49 176 21038222</p>
+        </td>
+    </tr>
+</table>
+<h1 class="invoice">RECHNUNG</h1>
+<table width="800" style="margin-bottom: 30px">
+    <tr style="vertical-align: top">
+        <td width="30%" style="vertical-align: top">
+            <p class="content">{{ order.address_last_name }}</p>
+            <p class="content">{{ order.address_street }} {{ order.address_home_number }}</p>
+            <p class="content">{{ order.address_ZIP }} {{ order.address_city }}</p>
+            <p class="content">{{ order.email }}</p>
+            <p class="content">{{ order.phone_number }}</p>
+        </td>
+        <td width="30%" style="vertical-align: top">
+            <h3 class="head">Versand nach:</h3>
+            <p class="content">n. a.</p>
+        </td>
+        <td width="20%" style="vertical-align: top">
+            <p class="content">Rechnungsnummer:</p>
+            <p class="content">Rechnungsdatum:</p>
+            <p class="content">Bestellnummer:</p>
+            <p class="content">Bestelldatum:</p>
+            <p class="content">Zahlungsart:</p>
+        </td>
+        <td width="20%" style="vertical-align: top">
+            <p class="content">Nr.:{{ order.id }}</p>
+            <p class="content">{{ order.date_created|date:'d M Y' }}</p>
+            <p class="content">{{ order.id }}</p>
+            <p class="content">{{ order.date_created|date:'d M Y'  }}</p>
+            <p class="content">{{ order.payment_type }}</p>
+        </td>
+    </tr>
+</table>
+<table width="800" cellspacing="0px" style="margin-bottom: 30px">
+    <thead>
+    <tr class="title_colum">
+        <th width="60%" style="padding: 5px; text-align: left">Product</th>
+        <th
+                width="20%"
+                style="padding: 5px; padding-left: 0; text-align: left"
+        >
+            Anzahl
+        </th>
+        <th
+                width="20%"
+                style="padding: 5px; padding-left: 0; text-align: left"
+        >
+            Price
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in order_items %}
+    <tr>
+        <td width="60%" style="padding: 10px; border-bottom: 1px solid #ccc">
+            <p class="content">{{ item.product.title }}</p>
+            <p class="artical_weight">Art.-Nr.: {{ item.product.vendor_code }}</p>
+            <p class="artical_weight">Gewicht: {{ item.product.weight }}g</p>
+        </td>
+        <td
+                width="20%"
+                style="
+              padding: 10px;
+              padding-left: 0;
+              vertical-align: top;
+              border-bottom: 1px solid #ccc;
+            "
+        >
+            <p class="content">{{ item.quantity }}</p>
+        </td>
+        <td
+                width="20%"
+                style="
+              padding: 10px;
+              padding-left: 0;
+              vertical-align: top;
+              border-bottom: 1px solid #ccc;
+            "
+        >
+            <p class="content">{{ item.total_price }}&nbsp;€</p>
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+<table width="800px" cellspacing="0px">
+    <tr>
+        <td width="60%"></td>
+        <td width="40%">
+            <table width="100%" cellspacing="0px">
+                <tr>
+                    <td
+                            style="
+                  border-bottom: 1px solid #ccc;
+                  border-top: 1px solid #ccc;
+                  padding-bottom: 10px;
+                  padding-top: 10px;
+                "
+                    >
+                        <h3 class="head">Zwischensumme</h3>
+                    </td>
+                    <td
+                            style="
+                  border-bottom: 1px solid #ccc;
+                  border-top: 1px solid #ccc;
+                  padding-bottom: 10px;
+                  padding-top: 10px;
+                "
+                    >
+                        <p class="content total_sum">{{ order.products_price }}&nbsp;€</p>
+                    </td>
+                </tr>
+                {% if order.delivery_cost %}
+                <tr>
+                    <td style="padding-bottom: 10px; padding-top: 10px">
+                        <h3 class="head">Lieferung</h3>
+                    </td>
+                    <td style="padding-bottom: 10px; padding-top: 10px">
+                        {{ order.delivery_cost }}&nbsp;€
+                        <span>via Lieferung<br/>innerhalb Hamburg {{ order.delivery_cost }}&nbsp;€</span>
+                    </td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td
+                            style="
+                  border-bottom: 3px solid black;
+                  border-top: 3px solid black;
+                  padding-bottom: 10px;
+                  padding-top: 10px;
+                "
+                    >
+                        <h3 class="head">Gesamt</h3>
+                    </td>
+                    <td
+                            style="
+                  border-bottom: 3px solid black;
+                  border-top: 3px solid black;
+                  padding-bottom: 10px;
+                  padding-top: 10px;
+                "
+                    >
+                        <p class="content total_sum">
+                            {{ order.total_price }}&nbsp;€
+                            <span
+                            >(inkl. {{ tax.tax_sum }}&nbsp;€<br/>
+                    MwSt. {{ tax.tax_cost }}&nbsp;% DE)</span>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

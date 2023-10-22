@@ -1,0 +1,58 @@
+services:
+  web-app:
+    build:
+      context: .
+    container_name: pelmeni_shop
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/server
+    env_file:
+      - ./.env.dev
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:14.6-alpine
+    environment:
+      - POSTGRES_DB=pelmen
+      - POSTGRES_USER=pfunt
+      - POSTGRES_PASSWORD=pass
+
+
+  redis:
+    image: redis:7.0.5-alpine
+    hostname: redis
+
+  worker:
+    build:
+      context: .
+    hostname: worker
+    entrypoint: celery
+    command: -A celery_app.app worker --loglevel=info
+    volumes:
+      - ./server:/server
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database
+    env_file:
+      - ./.env.dev
+
+  flower:
+    build:
+      context: .
+    hostname: flower
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+       - ./server:/server
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+    - "5555:5555"
