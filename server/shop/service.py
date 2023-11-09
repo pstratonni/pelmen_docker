@@ -1,19 +1,8 @@
-import base64
-import os
-from pathlib import Path
-
-
-from decouple import config
-from django.conf import settings
-
-from django.core.files import File
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django_filters import rest_framework as filters
-from xhtml2pdf import pisa
+from icecream import ic
 
-from shop.models import Product
-
+from shop_server.tasks import send_email_with_attach, add_order_to_purchaser
+from shop.models import Product, Cart, CartItem, OrderItem, Order
 
 
 class ChartFilterInFilter(filters.BaseInFilter, filters.CharFilter):
@@ -28,32 +17,39 @@ class ProductFilter(filters.FilterSet):
         fields = ['category']
 
 
-def get_img_file_as_base64():
-    url = os.path.join(settings.BASE_DIR, 'media', 'author_img', 'pdf_logo.jpg')
-    with open(url, 'rb') as img_file:
-        return base64.b64encode(img_file.read()).decode()
+def create_order(user, data):
+    try:
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
+        if not len(cart_items):
+            raise
+        data_dict = {}
+        for kye, value in data.items():
+            data_dict[kye] = value
+        order = Order.objects.create(user=user, **data_dict)
+        for item in cart_items:
+            if item.product.active:
+                OrderItem.objects.create(order=order, quantity=item.quantity, price=item.price,
+                                         product=item.product, discount=item.discount, total_price=item.total_price)
+        order.update_order()
+        cart.delete()
+        Cart.objects.create(user=user)
+        send_email_with_attach.delay(order.id)
+        add_order_to_purchaser.delay(order.user.id)
+        return order, True
+    except:
+        return [], False
 
 
-def create_pdf(order, order_items, tax, ):
-    img = get_img_file_as_base64()
-    html_pdf = render_to_string(
-        'order_to_pdf.html',
-        {
-            'order': order,
-            'order_items': order_items,
-            'tax': tax,
-            'img': img
-        })
-    url = os.path.join(settings.BASE_DIR, 'media', 'author_img', f'Invoice №{order.id}.pdf')
-    pdf = open(url, "w+b")
-    pisa_status = pisa.CreatePDF(html_pdf, dest=pdf)
-    pdf.close()
-    if not pisa_status.err:
-        path = Path(url)
-        with path.open(mode='rb') as f:
-            order.invoice = File(f, name=path.name)
-            order.save()
-
-    return url, pisa_status.err
-
-
+def create_cart_item(user__id: int, data):
+    cart = Cart.objects.get(user__id=user__id)
+    data_dict = {key: value for key, value in data.items()}
+    if cart.id != int(data_dict['cart']):
+        return None, False
+    product = Product.objects.get(pk=data_dict['product'])
+    cart_item, _ = CartItem.objects.filter(cart=cart).update_or_create(product=product, cart=cart,
+                                                                       defaults={
+                                                                           'quantity': int(data_dict['quantity'])})
+    cart_item.update_cart_item()
+    cart.update_cart()
+    return cart_item, True

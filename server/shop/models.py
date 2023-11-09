@@ -4,7 +4,8 @@ from django.db import models
 from django.db.models import Sum
 from django.utils.html import format_html
 
-from shop_server.tasks import count_product
+
+# from shop_server.tasks import count_product
 
 
 class Manufacturer(models.Model):
@@ -56,6 +57,7 @@ class Product(models.Model):
     title = models.CharField(max_length=150)
     description = models.TextField(default='', blank=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True)
+    is_price_for_one = models.BooleanField(default=False)
     weight = models.IntegerField(validators=[MinValueValidator(1)], default=500)
     price = models.DecimalField(validators=[MinValueValidator(0.0)], max_digits=5, decimal_places=2)
     discount = models.DecimalField(validators=[MinValueValidator(0.0)], max_digits=5, decimal_places=2,
@@ -63,7 +65,6 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product_img')
     amount = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
-    prepared = models.BooleanField(default=False)
     composition = models.ManyToManyField(Composition, related_name='products')
     vendor_code = models.CharField(max_length=15, default='9-')
     categories = models.ManyToManyField(Category, related_name='products')
@@ -81,12 +82,19 @@ class Product(models.Model):
 
     colored_title.admin_order_field = 'title'
 
+    def date_created_property(self):
+        return f'{self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
+
+    date_created_property.short_description = 'Date created'
+    date_created_format = property(date_created_property)
+
     class Meta:
         ordering = ['id']
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='orders', blank=True, db_index=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='orders', blank=True,
+                             db_index=True, )
     total_price = models.DecimalField(default=0, validators=[MinValueValidator(0.0)],
                                       max_digits=5, decimal_places=2)
     products_amount = models.IntegerField(default=0, validators=[MinValueValidator(0)])
@@ -101,9 +109,9 @@ class Order(models.Model):
     status = models.CharField(choices=STATUSES, default='UNF', max_length=3)
     PAYMENTS = [
         ('PP', 'PayPal'),
-        ('BG', 'Bar')
+        ('BG', 'Bargeld')
     ]
-    payment_type = models.CharField(choices=PAYMENTS, max_length=2, default='BG')
+    payment_type = models.CharField(choices=PAYMENTS, max_length=3, default='BG')
     PAY_STATUS = [
         ('PAI', 'bezahlt'),
         ('UNP', 'unbezahlt')
@@ -116,7 +124,7 @@ class Order(models.Model):
     address_last_name = models.CharField(max_length=20, default='')
     phone_number = models.CharField(max_length=20, default='')
     email = models.EmailField(default='')
-    invoice = models.FileField(upload_to='invoices', null=True)
+    invoice = models.FileField(upload_to='invoices', null=True, blank=True)
     is_new = models.BooleanField(default=True)
     comment = models.CharField(max_length=250, default='', null=True)
 
@@ -131,9 +139,18 @@ class Order(models.Model):
 
     def update_order(self):
         x = self.order_items.aggregate(Sum('total_price'), Sum('quantity'))
-        self.products_price = x['total_price__sum']
-        self.products_amount = x['quantity__sum']
+        self.total_price = x['total_price__sum'] or 0
+        self.products_amount = x['quantity__sum'] or 0
         self.save()
+
+    def is_new_order(self):
+        if self.is_new:
+            return format_html('<span style="color: #f00;">{}</span>',
+                               self.user)
+        else:
+            return self.user
+
+    is_new_order.admin_order_field = 'user'
 
     class Meta:
         ordering = ['-date_created']
@@ -159,9 +176,10 @@ class OrderItem(models.Model):
 class Shipment(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, related_name='shipment')
     date_created = models.DateTimeField(auto_now_add=True)
+    shipment_doc = models.FileField(upload_to='shipments', blank=True, null=True)
 
     def __str__(self):
-        return f'{self.order}'
+        return f'{self.order.id} {self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
 
     class Meta:
         ordering = ['id']
@@ -184,15 +202,19 @@ class Cart(models.Model):
     total_price = models.DecimalField(default=0, validators=[MinValueValidator(0.0)], max_digits=5, decimal_places=2)
     total_amount = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     date_created = models.DateTimeField(auto_now_add=True)
+    date_update = models.DateField(auto_now=True)
 
     def update_cart(self):
-        x = self.cart_items.aggregate(Sum('total_price'))
-        self.total_price = x['total_price__sum']
-        self.total_amount = x['quantity__sum']
+        x = self.cart_items.aggregate(Sum('total_price'), Sum('quantity'))
+        self.total_price = x['total_price__sum'] or 0
+        self.total_amount = x['quantity__sum'] or 0
         self.save()
 
     def __str__(self):
         return f'{self.user.username}'
+
+    class Meta:
+        ordering = ['user']
 
 
 class CartItem(models.Model):
@@ -205,7 +227,13 @@ class CartItem(models.Model):
     total_price = models.DecimalField(default=0, validators=[MinValueValidator(0.0)], max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return f'{self.cart.id}'
+        return f'{self.cart}'
+
+    def update_cart_item(self):
+        self.price = self.product.price
+        self.discount = self.product.discount
+        self.total_price = self.quantity * (self.price - self.discount)
+        self.save()
 
 
 class Tax(models.Model):

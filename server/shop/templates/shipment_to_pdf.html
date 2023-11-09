@@ -86,15 +86,15 @@
         </td>
     </tr>
 </table>
-<h1 class="invoice">RECHNUNG</h1>
+<h1 class="invoice">LIFERSCHEIN</h1>
 <table width="800" style="margin-bottom: 30px">
     <tr style="vertical-align: top">
         <td width="30%" style="vertical-align: top">
-            <p class="content">{{ order.address_last_name }}</p>
-            <p class="content">{{ order.address_street }} {{ order.address_home_number }}</p>
-            <p class="content">{{ order.address_ZIP }} {{ order.address_city }}</p>
-            <p class="content">{{ order.email }}</p>
-            <p class="content">{{ order.phone_number }}</p>
+            <p class="content">{{ shipment.order.address_last_name }}</p>
+            <p class="content">{{ shipment.order.address_street }} {{ shipment.order.address_home_number }}</p>
+            <p class="content">{{ shipment.order.address_ZIP }} {{ shipment.order.address_city }}</p>
+            <p class="content">{{ shipment.order.email }}</p>
+            <p class="content">{{ shipment.order.phone_number }}</p>
         </td>
         <td width="30%" style="vertical-align: top">
             <h3 class="head">Versand nach:</h3>
@@ -108,11 +108,11 @@
             <p class="content">Zahlungsart:</p>
         </td>
         <td width="20%" style="vertical-align: top">
-            <p class="content">Nr.:{{ order.id }}</p>
-            <p class="content">{{ order.date_created|date:'d M Y' }}</p>
-            <p class="content">{{ order.id }}</p>
-            <p class="content">{{ order.date_created|date:'d M Y'  }}</p>
-            <p class="content">{{ order.payment_type }}</p>
+            <p class="content">Nr.:{{ shipment.order.id }}</p>
+            <p class="content">{{ shipment.order.date_created|date:'d M Y' }}</p>
+            <p class="content">{{ shipment.order.id }}</p>
+            <p class="content">{{ shipment.order.date_created|date:'d M Y'  }}</p>
+            <p class="content">{{ shipment.order.payment_type }}</p>
         </td>
     </tr>
 </table>
@@ -126,21 +126,21 @@
         >
             Anzahl
         </th>
-        <th
-                width="20%"
-                style="padding: 5px; padding-left: 0; text-align: left"
-        >
-            Price
-        </th>
+<!--        <th-->
+<!--                width="20%"-->
+<!--                style="padding: 5px; padding-left: 0; text-align: left"-->
+<!--        >-->
+<!--            Price-->
+<!--        </th>-->
     </tr>
     </thead>
     <tbody>
-    {% for item in order_items %}
+    {% for item in shipment_items %}
     <tr>
         <td width="60%" style="padding: 10px; border-bottom: 1px solid #ccc">
             <p class="content">{{ item.product.title }}</p>
             <p class="artical_weight">Art.-Nr.: {{ item.product.vendor_code }}</p>
-             {% if item.product.is_price_for_one %}
+            {% if item.product.is_price_for_one %}
             <p class="artical_weight">Gewicht: Schtück</p>
             {% else %}
             <p class="artical_weight">Gewicht: {{ item.product.weight }}g</p>
@@ -157,27 +157,27 @@
         >
             <p class="content">{{ item.quantity }}</p>
         </td>
-        <td
-                width="20%"
-                style="
-              padding: 10px;
-              padding-left: 0;
-              vertical-align: top;
-              border-bottom: 1px solid #ccc;
-            "
-        >
-            <p class="content">{{ item.total_price }}&nbsp;€</p>
-        </td>
+<!--        <td-->
+<!--                width="20%"-->
+<!--                style="-->
+<!--              padding: 10px;-->
+<!--              padding-left: 0;-->
+<!--              vertical-align: top;-->
+<!--              border-bottom: 1px solid #ccc;-->
+<!--            "-->
+<!--        >-->
+<!--            <p class="content">{{ item.total_price }}&nbsp;€</p>-->
+<!--        </td>-->
     </tr>
     {% endfor %}
 
     </tbody>
 </table>
-<table width="800px" cellspacing="0px">
-    <tr>
-        <td width="60%"></td>
-        <td width="40%">
-            <table width="100%" cellspacing="0px">
+<!--<table width="800px" cellspacing="0px">-->
+<!--    <tr>-->
+<!--        <td width="60%"></td>-->
+<!--        <td width="40%">-->
+<!--            <table width="100%" cellspacing="0px">-->
 <!--                <tr>-->
 <!--                    <td-->
 <!--                            style="-->
@@ -211,36 +211,36 @@
 <!--                    </td>-->
 <!--                </tr>-->
 <!--                {% endif %}-->
-                <tr>
-                    <td
-                            style="
-                  border-bottom: 3px solid black;
-                  border-top: 3px solid black;
-                  padding-bottom: 10px;
-                  padding-top: 10px;
-                "
-                    >
-                        <h3 class="head">Gesamtsumme</h3>
-                    </td>
-                    <td
-                            style="
-                  border-bottom: 3px solid black;
-                  border-top: 3px solid black;
-                  padding-bottom: 10px;
-                  padding-top: 10px;
-                "
-                    >
-                        <p class="content total_sum">
-                            {{ order.total_price }}&nbsp;€
-                            <span
-                            >(inkl. {{ tax.tax_sum }}&nbsp;€<br/>
-                    MwSt. {{ tax.tax_cost }}&nbsp;% DE)</span>
-                        </p>
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
-</table>
+<!--                <tr>-->
+<!--                    <td-->
+<!--                            style="-->
+<!--                  border-bottom: 3px solid black;-->
+<!--                  border-top: 3px solid black;-->
+<!--                  padding-bottom: 10px;-->
+<!--                  padding-top: 10px;-->
+<!--                "-->
+<!--                    >-->
+<!--                        <h3 class="head">Gesamt</h3>-->
+<!--                    </td>-->
+<!--                    <td-->
+<!--                            style="-->
+<!--                  border-bottom: 3px solid black;-->
+<!--                  border-top: 3px solid black;-->
+<!--                  padding-bottom: 10px;-->
+<!--                  padding-top: 10px;-->
+<!--                "-->
+<!--                    >-->
+<!--                        <p class="content total_sum">-->
+<!--                            {{ order.total_price }}&nbsp;€-->
+<!--                            <span-->
+<!--                            >(inkl. {{ tax.tax_sum }}&nbsp;€<br/>-->
+<!--                    MwSt. {{ tax.tax_cost }}&nbsp;% DE)</span>-->
+<!--                        </p>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </table>-->
+<!--        </td>-->
+<!--    </tr>-->
+<!--</table>-->
 </body>
 </html>

@@ -1,6 +1,8 @@
 .idea
 /.env.dev
+/.env.dev.db
 
 
 !*media/.gitkeep
 media/*
+

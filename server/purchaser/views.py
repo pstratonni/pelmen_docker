@@ -1,4 +1,6 @@
+from django.db.models import Q, F
 from django.shortcuts import render
+from icecream import ic
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework import generics
@@ -13,13 +15,12 @@ from shop.permissions import IsOwner
 class PurchaserAPIRetrieve(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PurchaserRetrieveSerializer
     permission_classes = (IsOwner,)
+    queryset = Purchaser.objects.annotate(orders=F('user__orders')).prefetch_related('favorite_product')
 
-    def get_queryset(self):
-        return Purchaser.objects.get(user=self.request.user).prefetch_related('orders')
 
 
 class PurchaserAPIList(generics.ListAPIView):
-    queryset = Purchaser.objects.all()
+    queryset = Purchaser.objects.all().prefetch_related('favorite_product')
     serializer_class = PurchaserListSerializer
     permission_classes = (IsAdminUser,)
 
@@ -36,4 +37,3 @@ class CustomAuthToken(ObtainAuthToken):
             'token': token.key,
             'user_id': user.pk,
         })
-

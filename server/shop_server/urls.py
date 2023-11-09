@@ -20,14 +20,16 @@ from django.urls import path, re_path, include
 from django.conf import settings
 from django.views.generic import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
+from .yasg import urlpatterns as swagger_url
 
 from purchaser.views import CustomAuthToken
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('purchaser.urls')),
-    path('api/v1/shop/', include('shop.urls')),
+    path('api/v1/shop/', include('shop.urls.urlpatterns_shop')),
+    path('api/v1/', include('shop.urls.urlpatterns_admin')),
     path('api/v1/token-auth/', CustomAuthToken.as_view()),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon/favicon.ico')))
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + swagger_url

@@ -2,7 +2,7 @@ services:
   web-app:
     build:
       context: .
-    container_name: pelmeni_shop
+    container_name: pelmeni_shop_back
     ports:
       - "8000:8000"
     volumes:
@@ -15,12 +15,12 @@ services:
       - database
 
   database:
+    container_name: db_pelmeni
     image: postgres:14.6-alpine
-    environment:
-      - POSTGRES_DB=pelmen
-      - POSTGRES_USER=pfunt
-      - POSTGRES_PASSWORD=pass
-
+    env_file:
+      - ./.env.dev.db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
 
   redis:
     image: redis:7.0.5-alpine
@@ -30,6 +30,7 @@ services:
     build:
       context: .
     hostname: worker
+    container_name: pelmeni_celery_worker
     entrypoint: celery
     command: -A celery_app.app worker --loglevel=info
     volumes:
@@ -42,17 +43,16 @@ services:
     env_file:
       - ./.env.dev
 
-  flower:
-    build:
-      context: .
-    hostname: flower
-    entrypoint: celery
-    command: -A celery_app.app flower
-    volumes:
-       - ./server:/server
-    links:
-      - redis
-    depends_on:
-      - redis
-    ports:
-    - "5555:5555"
+#  front-app:
+#    build:
+#      context: ./front
+#    container_name: pelmeni_shop_front
+#    ports:
+#      - "3000:3000"
+#    volumes:
+#      - ./front:/front
+#    depends_on:
+#      - web-app
+
+volumes:
+  postgres_data:

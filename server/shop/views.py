@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from shop.permissions import *
 from shop.serializers import *
-from shop.service import ProductFilter
+from shop.service import ProductFilter, create_order, create_cart_item
 
 
 class ManufacturerAPIList(generics.ListAPIView):
@@ -73,15 +73,30 @@ class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
 
 
-class OrderAPIListCreate(generics.ListCreateAPIView):
+class OrderAPIList(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         user = self.request.user
         if user:
-            return Order.objects.filter(user=user)
+            return Order.objects.filter(user=user).prefetch_relayred('order_items')
         return Response([])
+
+
+class OrderAPICreate(generics.CreateAPIView):
+    queryset = Order.objects.all().prefetch_related('order_items')
+    permission_classes = (IsAuthenticated,)
+    serializer_class = OrderRetrieveSerializer
+
+    def post(self, request):
+        try:
+            order, create = create_order(request.user, request.data)
+            if not create:
+                return Response([], status=400)
+            return Response(OrderRetrieveSerializer(order).data)
+        except:
+            pass
 
 
 class OrderAPIRetrieve(generics.RetrieveAPIView):
@@ -111,30 +126,31 @@ class OrderItemAPICreate(generics.CreateAPIView):
 
 class OrderItemAPIUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = OrderItem.objects.all()
-    serializer_class = OrderItemSerializer
     permission_classes = (IsAdminUser,)
+    serializer_class = OrderItemSerializer
 
 
 class CartAPIRetrieveUpdateDestroy(APIView):
     permission_classes = (IsOwner,)
 
     def get(self, request, ):
-        cart = Cart.objects.get(user=request.user).prefetch_related('cart_items')
+        cart = Cart.objects.filter(user=request.user).prefetch_related('cart_items').first()
         return Response(CartSerializer(cart).data)
 
 
 class CartItemAPICreate(generics.CreateAPIView):
+    queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
-    permission_classes = (IsOwnerOrderOrCart,)
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        cart_item, permission = create_cart_item(request.user.id, request.data)
+        if not permission:
+            return Response({'err': "you don't have permission"}, status=500)
+        return Response(CartItemSerializer(cart_item).data, status=201)
 
 
 class CartItemAPIDestroy(generics.DestroyAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = (IsOwnerOrderOrCart,)
-
-
-
-
-
-
