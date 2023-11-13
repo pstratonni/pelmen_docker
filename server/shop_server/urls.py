@@ -30,6 +30,6 @@ urlpatterns = [
     path('api/v1/shop/', include('shop.urls.urlpatterns_shop')),
     path('api/v1/', include('shop.urls.urlpatterns_admin')),
     path('api/v1/token-auth/', CustomAuthToken.as_view()),
-    re_path(r'^auth/', include('djoser.urls.authtoken')),
+    re_path(r'^auth/', include('djoser.urls')),
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('favicon/favicon.ico')))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + swagger_url

@@ -83,7 +83,7 @@ class Product(models.Model):
     colored_title.admin_order_field = 'title'
 
     def date_created_property(self):
-        return f'{self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
+        return f'{self.date_created.strftime("%d. %b. %Y")}'
 
     date_created_property.short_description = 'Date created'
     date_created_format = property(date_created_property)
@@ -126,7 +126,7 @@ class Order(models.Model):
     email = models.EmailField(default='')
     invoice = models.FileField(upload_to='invoices', null=True, blank=True)
     is_new = models.BooleanField(default=True)
-    comment = models.CharField(max_length=250, default='', null=True)
+    comment = models.TextField(max_length=250, default='', null=True)
 
     def __str__(self):
         return f'{self.user}, {self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
@@ -151,6 +151,12 @@ class Order(models.Model):
             return self.user
 
     is_new_order.admin_order_field = 'user'
+
+    def date_created_property(self):
+        return f'{self.date_created.strftime("%d. %b. %Y %H:%M:%S")}'
+
+    date_created_property.short_description = 'Date created'
+    date_created_format = property(date_created_property)
 
     class Meta:
         ordering = ['-date_created']
@@ -179,10 +185,22 @@ class Shipment(models.Model):
     shipment_doc = models.FileField(upload_to='shipments', blank=True, null=True)
 
     def __str__(self):
-        return f'{self.order.id} {self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
+        return f'{self.order.id}  {self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
+
+    def date_created_property(self):
+        return f'{self.date_created.strftime("%d. %b. %Y %H:%M:%S")}'
+
+    date_created_property.short_description = 'Date created'
+    date_created_format = property(date_created_property)
+
+    def order_property(self):
+        return f'{self.order.id}  {self.order}'
+
+    order_property.short_description = 'Order'
+    order_format = property(order_property)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['order']
 
 
 class ShipmentItem(models.Model):

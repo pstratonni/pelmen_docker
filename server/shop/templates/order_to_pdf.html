@@ -112,7 +112,7 @@
             <p class="content">{{ order.date_created|date:'d M Y' }}</p>
             <p class="content">{{ order.id }}</p>
             <p class="content">{{ order.date_created|date:'d M Y'  }}</p>
-            <p class="content">{{ order.payment_type }}</p>
+            <p class="content">{{ order.get_payment_type_display }}</p>
         </td>
     </tr>
 </table>

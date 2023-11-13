@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('address_home_number', models.CharField(default='', max_length=5)),
                 ('address_last_name', models.CharField(default='', max_length=20)),
                 ('phone_number', models.CharField(default='', max_length=20)),
-                ('email', models.EmailField(default='', max_length=254)),
+                ('templates', models.EmailField(default='', max_length=254)),
                 ('invoice', models.FileField(null=True, upload_to='invoices')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='orders', to=settings.AUTH_USER_MODEL)),
             ],

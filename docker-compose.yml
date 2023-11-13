@@ -11,6 +11,7 @@ services:
       - ./.env.dev
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+#      sh -c "gunicorn shop_server.wsgi:application --bind 0.0.0.0:8000"
     depends_on:
       - database
 
@@ -42,6 +43,38 @@ services:
       - database
     env_file:
       - ./.env.dev
+
+  beat:
+    build:
+      context: .
+    hostname: beat
+    container_name: pelmeni_celery_beat
+    entrypoint: celery
+    command: -A celery_app.app beat --loglevel=info
+    volumes:
+      - ./server:/server
+    links:
+      - redis
+    depends_on:
+      - redis
+      - database
+    env_file:
+      - ./.env.dev
+
+  flower:
+    build:
+      context: .
+    hostname: flower
+    entrypoint: celery
+    command: -A celery_app.app flower
+    volumes:
+      - ./server:/server
+    links:
+      - redis
+    depends_on:
+      - redis
+    ports:
+      - "5555:5555"
 
 #  front-app:
 #    build:

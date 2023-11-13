@@ -1,0 +1,148 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Kontoaktivierung auf {{ site_name }}{% endblocktrans %}
+{% endblock subject %}
+{% block html_body %}
+<div style="background-color: #20b2aa">
+    <div
+            style="
+          margin: 0 auto;
+          width: 500px;
+          padding: 10px 80px;
+          font-family: Arial, Helvetica, sans-serif;
+        "
+    >
+        <table
+                cellpadding="0"
+                cellspacing="0"
+                style="background-color: white; width: 100%"
+        >
+            <tr
+                    style="background-color: burlywood"
+                    cellpadding="0"
+                    cellspacing="0"
+            >
+                <td
+                        cellpadding="0"
+                        cellspacing="0"
+                        style="width: 20%; border-bottom: 3px solid #d2691e"
+                >
+                    <img
+
+                            src="https://localhost:8000/{{url_logo|safe}}"
+                            alt=""
+                            style="
+                  width: 70px;
+                  vertical-align: middle;
+                  padding: 0;
+                  margin: 0;
+                "
+                    />
+                    <!--                            src="{{ protocol }}://{{ domain }}/{{ url_logo|safe }}"-->
+                </td>
+                <td style="border-bottom: 3px solid #d2691e">
+                    <h1 style="color: antiquewhite; margin-left: 0">
+                        Pelmeni Hamburg
+                    </h1>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; padding: 10px" colspan="2">
+                    <h3 style="font-weight: normal">
+                        Hallo <span style="font-weight: bold">{{ user }}</span>,
+                        Registrierung unter {{ site_name }} abgeschlossen!
+                    </h3>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <img src="https://cdn.templates.unlayer.com/assets/1614421256001-bg.png" alt=""
+                         style="width: 70%"/>
+                    <!--                            src="{{ protocol }}://{{ domain }}/{{ url_bg|safe }}"-->
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100%; padding: 10px" colspan="2">
+                    <p style="font-size: 12px; font-weight: bold">
+                        Vielen Dank, dass Sie sich uns angeschlossen haben!
+                    </p>
+                    <p style="font-size: 12px; padding-bottom: 15px">
+                        Ihr Benutzername ist: „{{ user }}“
+                    </p>
+                </td>
+            </tr>
+            <tr style="background-color: #ffe4c4" cellpadding="0" cellspacing="0">
+                <td style="width: 100%; padding: 10px" colspan="2">
+                    <p style="font-size: 12px; margin-bottom: 25px">
+                        Um die Anmeldung abzuschließen und Ihr Konto zu aktivieren
+                    </p>
+                    <div
+                            style="
+                  text-align: center;
+                  width: 40%;
+                  margin: 0 auto;
+                  margin-bottom: 25px;
+                "
+                    >
+                        <a href="{{ protocol }}://{{ domain }}/{{ url|safe }}" style="text-decoration: none;"
+                        >
+                            <div
+                                    style="
+                      color: #fff;
+                      background-color: #cd853f;
+                      padding: 10px;
+                      border: 1px solid #8b4513;
+                      cursor: pointer;
+                      border-radius: 20px;
+                      font-size:14px
+
+                    "
+                            >
+                                Aktivieren Sie Ihr Konto >>
+                            </div>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table style="background-color: #8b4513; width: 100%">
+                        <tr style="color: white">
+                            <td style="padding-left: 10px;">
+                                <h5 style="margin-bottom: 2px">Pfunt Inh. Anton Kilin</h5>
+                                <p style="margin: 2px; font-size: 12px">
+                                    Seppenser Mühlenweg 19
+                                </p>
+                                <p style="margin: 2px; font-size: 12px">
+                                    21244 Buchholz i.d.N.
+                                </p>
+                                <p style="margin-top: 2px; font-size: 12px">
+                                    Tel.: +49 176 21038222
+                                </p>
+                            </td>
+                            <td style="text-align: center">
+                                <a href="https://www.instagram.com/pelmeni_hamburg/"><img
+                                        src="https://img.icons8.com/?size=256&id=32323&format=png" alt=""
+                                        style="width:20%"></a>
+                                <!--                                src="{{ protocol }}://{{ domain }}/{{ url_ins|safe }}" alt=""-->
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock html_body %}
+
+<!--<p>{% blocktrans %}Sie erhalten diese E-Mail, weil Sie den Aktivierungsprozess auf {{ site_name }} abschließen müssen.{% endblocktrans %}</p>-->
+
+<!--<p>{% trans "Bitte gehen Sie zur folgenden Seite, um das Konto zu aktivieren:" %}</p>-->
+<!--<p><a href="{{ protocol }}://{{ domain }}/{{ url|safe }}">{{ protocol }}://{{ domain }}/{{ url|safe }}</a></p>-->
+
+<!--<p>{% trans "Vielen Dank, dass Sie unsere Website nutzen!" %}</p>-->
+
+<!--<p>{% blocktrans %}Das {{ site_name }}-Team{% endblocktrans %}</p>-->
+
+

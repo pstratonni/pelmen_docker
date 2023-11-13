@@ -80,7 +80,7 @@ class OrderAPIList(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         if user:
-            return Order.objects.filter(user=user).prefetch_relayred('order_items')
+            return Order.objects.filter(user=user).prefetch_related('order_items')
         return Response([])
 
 
@@ -110,7 +110,7 @@ class OrderIsAdminAPIList(generics.ListAPIView):
     serializer_class = OrderSerializer
     pagination_class = ProductAPIListPagination
     filter_backends = (DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('email', 'id')
+    search_fields = ('templates', 'id')
 
 
 class OrderAPIUpdate(generics.RetrieveUpdateDestroyAPIView):

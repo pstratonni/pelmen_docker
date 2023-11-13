@@ -141,14 +141,14 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'id', 'total_price', 'date_created', 'date_shipping', 'status',
+        'is_new_order', 'id', 'total_price', 'date_created_format', 'date_shipping', 'status',
         'payment_type', 'payment_status', 'full_address')
     search_fields = ('user__username__startswith',)
     list_per_page = 12
     list_editable = ('status', 'date_shipping')
     list_filter = ('status', 'date_shipping', DateCommentFilter)
-    readonly_fields = ('address', 'order_items',)
-    fields = ('user', "is_new", 'email', ('total_price', 'products_amount'),
+    readonly_fields = ('address', 'order_items', 'total_price', 'products_amount')
+    fields = ('user', "is_new", ('total_price', 'products_amount'),
               'order_items', ('date_shipping', 'status'), ('payment_type', 'payment_status'), 'address',
               'address_last_name', ('address_street', 'address_home_number'), ('address_ZIP', 'address_city'),
               'phone_number', 'invoice')
@@ -170,17 +170,15 @@ class OrderAdmin(admin.ModelAdmin):
 
     def order_items(self, instance):
         order_items = instance.order_items.all()
-        shipment_product = {}
-        try:
-            shipment_items = instance.shipment.shipment_items.all()
-            for items in shipment_items:
-                shipment_product[items.product] += items.quantity
-        except:
-            pass
+        shipment_product = {key.product.title: 0 for key in order_items}
+        shipment_items = []
+        for shipment in instance.shipment.all():
+            for item in shipment.shipment_items.all():
+                shipment_product[item.product.title] += item.quantity
         render = '<tr><td>Title of product</td><td>Quantity</td><td>Left to ship</td><tr>'
         for line in order_items:
             render += f'<tr><td>{line.product}</td><td style="text-align:center">{line.quantity}</td>' \
-                      f'<td style="text-align:center">{line.quantity - shipment_product[line.product] if line.product in shipment_product.keys() else line.quantity}</td></tr>'
+                      f'<td style="text-align:center">{line.quantity - shipment_product[line.product.title]}</td></tr>'
         render = "<table style=\"font-weight:bold; color:#8B4513\">" + render + "</table>"
         return format_html(
             render
@@ -221,7 +219,7 @@ class ShipmentItemInline(admin.TabularInline):
 
 @admin.register(Shipment)
 class ShipmentAdmin(admin.ModelAdmin):
-    list_display = ('order', 'id', 'date_created')
+    list_display = ('order_format', 'id', 'date_created_format')
     readonly_fields = ('shipment_items',)
     search_fields = ('order',)
     list_per_page = 12
@@ -241,10 +239,6 @@ class ShipmentAdmin(admin.ModelAdmin):
         )
 
     shipment_items.short_description = 'Shipped products'
-
-    def save_formset(self, request, form, formset, change):
-        formset.save()
-        add_or_update_shipment_doc.delay(int(request.POST['shipment_items-0-shipment']))
 
 
 # @admin.register(ShipmentItem)

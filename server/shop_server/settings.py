@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -170,6 +172,9 @@ DJOSER = {
     'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
     'SERIALIZERS': {},
+    'EMAIL': {
+        'activation': 'purchaser.email.OwenAktivationEmail'
+    },
 }
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -189,6 +194,13 @@ MEDIA_URL = '/media/'
 # }
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    "remove_token": {
+        "task": "shop_server.tasks.rm_token",
+        "schedule": crontab(minute='0', hour='2')
+    }
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
