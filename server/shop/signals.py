@@ -44,9 +44,15 @@ def create_shipment(sender, instance, created, **kwargs):
     if created:
         order_items = OrderItem.objects.filter(order=instance.order)
         shipment_product = {key.product.title: key.quantity for key in order_items}
+        is_completed = True
         for shipment in instance.order.shipment.all():
             for item in shipment.shipment_items.all():
                 shipment_product[item.product.title] -= item.quantity
+                if is_completed and shipment_product[item.product.title] > 0:
+                    is_completed = False
+        if is_completed:
+            instance.delete()
+            return
         for item in order_items:
             if shipment_product[item.product.title] != 0:
                 ShipmentItem.objects.create(shipment=instance, product=item.product,

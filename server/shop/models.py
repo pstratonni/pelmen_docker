@@ -126,7 +126,9 @@ class Order(models.Model):
     email = models.EmailField(default='')
     invoice = models.FileField(upload_to='invoices', null=True, blank=True)
     is_new = models.BooleanField(default=True)
+    is_completed = models.BooleanField(default=False)
     comment = models.TextField(max_length=250, default='', null=True)
+    payment_id = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.user}, {self.date_created.strftime("%d.%m.%Y %H:%M:%S")}'
@@ -143,14 +145,17 @@ class Order(models.Model):
         self.products_amount = x['quantity__sum'] or 0
         self.save()
 
-    def is_new_order(self):
+    def is_new_completed_order(self):
         if self.is_new:
             return format_html('<span style="color: #f00;">{}</span>',
+                               self.user)
+        elif self.is_new:
+            return format_html('<span style="color: #008000;">{}</span>',
                                self.user)
         else:
             return self.user
 
-    is_new_order.admin_order_field = 'user'
+    is_new_completed_order.admin_order_field = 'user'
 
     def date_created_property(self):
         return f'{self.date_created.strftime("%d. %b. %Y %H:%M:%S")}'
@@ -264,3 +269,16 @@ class Tax(models.Model):
 
     class Meta:
         ordering = ['id']
+
+
+class PayPal(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='paypall', blank=True, )
+    cart_id = models.PositiveIntegerField(null=True)
+    payment_id = models.CharField(max_length=30, null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.date_created}"
+
+    class Meta:
+        ordering = ['-date_created']

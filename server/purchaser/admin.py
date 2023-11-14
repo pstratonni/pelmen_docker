@@ -1,11 +1,9 @@
 from django.contrib import admin
-# from django.db.models import Count, Sum
 from django.urls import reverse
-from django.utils.html import format_html
-from django.utils.http import urlencode
 
+from django.utils.http import urlencode
+from django.utils.html import format_html
 from purchaser.models import Purchaser
-# from shop.models import Order
 
 
 @admin.register(Purchaser)
@@ -44,11 +42,10 @@ class PurchaserAdmin(admin.ModelAdmin):
 
     @admin.display(description='Orders')
     def get_orders(self, instance):
-
         url = (
                 reverse('admin:shop_order_changelist')
                 + '?'
-                + urlencode({'users__id': f'{instance.user.id}'})
+                + urlencode({'users__id__exact': f'{instance.user.id}'})
         )
         link = f'<a href="{url}">{instance.quantity_of_orders} Orders</a>'
         return format_html(link)

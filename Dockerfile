@@ -19,4 +19,4 @@ EXPOSE 8000
 
 COPY server /server
 
-ENTRYPOINT ["/server/entrypoint.sh"]
+#ENTRYPOINT ["/server/entrypoint.sh"]

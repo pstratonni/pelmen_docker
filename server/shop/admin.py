@@ -7,6 +7,9 @@ from django.db.models import Prefetch
 from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 from django.contrib.admin.sites import AdminSite
+from django.urls import reverse
+from django.utils.http import urlencode
+
 from shop_server.tasks import count_product, add_or_update_shipment_doc, add_order_to_purchaser
 from icecream import ic
 
@@ -141,17 +144,17 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        'is_new_order', 'id', 'total_price', 'date_created_format', 'date_shipping', 'status',
+        'is_new_completed_order', 'id', 'total_price', 'date_created_format', 'date_shipping', 'status',
         'payment_type', 'payment_status', 'full_address')
     search_fields = ('user__username__startswith',)
     list_per_page = 12
     list_editable = ('status', 'date_shipping')
-    list_filter = ('status', 'date_shipping', DateCommentFilter)
+    list_filter = ('status', 'is_new', 'date_shipping', DateCommentFilter, "user")
     readonly_fields = ('address', 'order_items', 'total_price', 'products_amount')
-    fields = ('user', "is_new", ('total_price', 'products_amount'),
+    fields = ('user', ("is_new", 'is_completed'), ('total_price', 'products_amount'),
               'order_items', ('date_shipping', 'status'), ('payment_type', 'payment_status'), 'address',
               'address_last_name', ('address_street', 'address_home_number'), ('address_ZIP', 'address_city'),
-              'phone_number', 'invoice')
+              'phone_number', 'invoice', 'comment')
     inlines = (
         OrderItemInline,
     )
@@ -196,7 +199,19 @@ class OrderAdmin(admin.ModelAdmin):
         except:
             pass
 
+    @admin.display(description='Shipment')
+    def get_orders(self, instance):
+        url = (
+                reverse('admin:shop_shipment_changelist')
+                + '?'
+                + urlencode({'order__id__exact': f'{instance.id}'})
+        )
+        link = f'<a href="{url}">Shipment</a>'
+        return format_html(link)
 
+    @admin.display(description='Email')
+    def get_email(self, instance):
+        return instance.user.email
 # @admin.register(OrderItem)
 # class OrderItemAdmin(admin.ModelAdmin):
 #     list_display = ('order', 'id', 'product', 'quantity', 'price', 'discount')

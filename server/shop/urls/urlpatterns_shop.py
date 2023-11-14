@@ -9,11 +9,14 @@ urlpatterns = [
     path('product/<int:pk>/', ProductAPIRetriever.as_view(), ),
     path('categories/', CategoryListView.as_view()),
     path('orders/', OrderAPIList.as_view(), ),
-    path('order/create/',OrderAPICreate.as_view(),),
+    path('order/create/', OrderAPICreate.as_view(), ),
     path('order/<int:pk>/', OrderAPIRetrieve.as_view(), ),
     path('order_item/', OrderItemAPICreate.as_view(), ),
     path('cart/', CartAPIRetrieveUpdateDestroy.as_view(), ),
     path('cart_item/create/', CartItemAPICreate.as_view(), ),
     path('cart_item/delete/<int:pk>/', CartItemAPIDestroy.as_view(), ),
-]
+    # PayPal
+    path('paypal/create/order', CreateOrderViewRemote.as_view(), name='ordercreate'),
+    path('paypal/capture/order', CaptureOrderView.as_view(), name='captureorder')
 
+]

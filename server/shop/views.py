@@ -154,3 +154,11 @@ class CartItemAPIDestroy(generics.DestroyAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = (IsOwnerOrderOrCart,)
+
+
+class CreateOrderViewRemote(APIView):
+    pass
+
+
+class CaptureOrderView(APIView):
+    pass
